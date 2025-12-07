@@ -1,16 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Workout Tracker</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Workout Planner</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background:#f6f6f6; }
+    header { background:#111; color:#fff; padding:20px; text-align:center; }
+    .container { max-width:900px; margin:20px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    h2 { margin-top:40px; }
+    .day { padding:15px; margin:15px 0; border:1px solid #ddd; border-radius:10px; background:#fafafa; }
+    ul { margin:10px 0 0 20px; }
+    .rest { background:#eaeaea; font-weight:bold; text-align:center; }
+  </style>
 </head>
 <body>
-    <h1>Workout Tracker</h1>
+  <header><h1>Weekly Workout Plan</h1></header>
+  <div class="container">
 
-    <div id="week-selector"></div>
-    <div id="day-selector"></div>
-    <div id="workout-container"></div>
+    <div class="day">
+      <h2>Sunday — Glute-Dominant Leg Day 1</h2>
+      <ul>
+        <li>Barbell Hip Thrust — 4×6–8</li>
+        <li>Bulgarian Split Squat — 3×8–10 each</li>
+        <li>B-Stance RDL — 3×8–10 each</li>
+        <li>Leg Press (high + wide) — 3×10–12</li>
+        <li>Cable Kickback — 3×12–15</li>
+        <li>Glute Hyperextension — 3×12–15</li>
+        <li>Abductor Machine — 3×15–20</li>
+      </ul>
+    </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <div class="day">
+      <h2>Monday — Full Upper (Back/Bi/Chest/Tri)</h2>
+      <ul
