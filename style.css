@@ -1,103 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Workout Calendar</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background:#f6f6f6; }
-    header { background:#111; color:#fff; padding:20px; text-align:center; }
-    .calendar-container { max-width:900px; margin:20px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-    .week-nav { display:flex; justify-content:space-between; margin-bottom:20px; }
-    button { padding:10px 16px; border:none; background:#111; color:#fff; border-radius:8px; cursor:pointer; }
-    button:hover { background:#333; }
-    .calendar-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:10px; }
-    .day { padding:12px; background:#fafafa; border:1px solid #ddd; border-radius:8px; text-align:center; cursor:pointer; }
-    .rest { background:#eaeaea; font-weight:bold; }
-    .workout-view { margin-top:30px; padding:20px; background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-    ul { margin-left:20px; }
-  </style>
-</head>
-<body>
-<header><h1>Weekly Workout Calendar</h1></header>
-<div class="calendar-container">
-
-  <div class="week-nav">
-    <button id="prevWeek">← Previous Week</button>
-    <div id="weekLabel"></div>
-    <button id="nextWeek">Next Week →</button>
-  </div>
-
-  <div class="calendar-grid" id="calendar"></div>
-
-  <div class="workout-view" id="workoutView"></div>
-
-</div>
-
-<script>
-const workouts = {
-  "Sunday": ["Barbell Hip Thrust — 4×6–8", "Bulgarian Split Squat — 3×8–10", "B-Stance RDL — 3×8–10", "Leg Press (high/wide) — 3×10–12", "Cable Kickback — 3×12–15", "Glute Hyperextension — 3×12–15", "Abductor Machine — 3×15–20"],
-  "Monday": ["Lat Pulldown — 3×8–12", "Seated Row — 3×8–12", "Dumbbell Bench — 3×8–12", "Incline Machine Press — 3×10–12", "Hammer Curl — 3×10–12", "Cable Curl — 3×12–15", "Tricep Rope Pushdown — 3×10–12", "Overhead DB Extension — 3×12–15"],
-  "Tuesday": "REST",
-  "Wednesday": ["Barbell Glute Bridge — 4×8–10", "Dumbbell RDL — 3×8–12", "Reverse Lunge — 3×8–10", "Smith Squat (feet forward) — 3×10–12", "Cable Abduction — 3×15–20", "Hip Extension — 3×12–15", "Seated Leg Curl — 3×12–15"],
-  "Thursday": "REST",
-  "Friday": ["Hip Thrust (light) — 4×12–15", "Sumo Deadlift — 3×6–8", "Step-Ups — 3×10", "Cable Pull-Through — 3×12–15", "Glute Med Kickouts — 3×20", "Leg Curl — 3×12–15", "Back Extension — 3×15–20"],
-  "Saturday": ["Pull-Ups — 3×6–10", "Single-Arm Pulldown — 3×10–12", "T-Bar Row — 3×8–12", "Straight Arm Pulldown — 3×12–15", "EZ Bar Curl — 3×8–12", "Preacher Curl — 3×10–12", "Reverse Curl — 3×12–15"]
-};
-
-const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]; 
-let currentWeekStart = new Date();
-currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay());
-
-function formatDate(d){ return d.toLocaleDateString(); }
-
-function loadWeek(){
-  const cal = document.getElementById('calendar');
-  const label = document.getElementById('weekLabel');
-  cal.innerHTML = '';
-
-  let end = new Date(currentWeekStart);
-  end.setDate(end.getDate()+6);
-  label.textContent = `${formatDate(currentWeekStart)} — ${formatDate(end)}`;
-
-  for(let i=0;i<7;i++){
-    let date = new Date(currentWeekStart);
-    date.setDate(date.getDate()+i);
-    let div = document.createElement('div');
-    div.className = 'day';
-    div.dataset.day = days[i];
-    div.innerHTML = `${days[i]}<br>${date.getMonth()+1}/${date.getDate()}`;
-    if(workouts[days[i]] === "REST") div.classList.add('rest');
-    div.onclick = ()=> showWorkout(days[i]);
-    cal.appendChild(div);
-  }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f6f6f6;
 }
 
-function showWorkout(day){
-  const view = document.getElementById('workoutView');
-  const w = workouts[day];
-
-  if(w === "REST"){
-    view.innerHTML = `<h2>${day} — REST DAY</h2>`;
-    return;
-  }
-
-  let list = w.map(i => `<li>${i}</li>`).join('');
-  view.innerHTML = `<h2>${day} Workout</h2><ul>${list}</ul>`;
+header {
+  background: #111;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
 }
 
-document.getElementById('prevWeek').onclick = ()=>{
-  currentWeekStart.setDate(currentWeekStart.getDate()-7);
-  loadWeek();
-};
+.calendar-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 
-document.getElementById('nextWeek').onclick = ()=>{
-  currentWeekStart.setDate(currentWeekStart.getDate()+7);
-  loadWeek();
-};
+.week-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
 
-loadWeek();
-</script>
+button {
+  padding: 10px 16px;
+  border: none;
+  background: #111;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-</body>
-</html>
+button:hover {
+  background: #333;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.day {
+  padding: 12px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.rest {
+  background: #eaeaea;
+  font-weight: bold;
+}
+
+.workout-view {
+  margin-top: 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+ul {
+  margin-left: 20px;
+}
