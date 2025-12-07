@@ -169,7 +169,7 @@
 const PROGRAM = {
   // Days map to the workouts you provided
   "Sunday": [
-    {name:<a href="https://youtube.com">"Barbell Hip Thrust", sets:"4", reps:"6–8"},
+    {name:"Barbell Hip Thrust", sets:"4", reps:"6–8"},
     {name:"Bulgarian Split Squat", sets:"3", reps:"8–10 each"},
     {name:"B-Stance RDL", sets:"3", reps:"8–10 each"},
     {name:"Leg Press (high + wide)", sets:"3", reps:"10–12"},
@@ -241,7 +241,10 @@ function startOfWeek(date){ // Sunday-start
   return d;
 }
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-
+  }
+  function showWorkout(day) {
+<button class="video-btn" onclick="window.open('YOUR_LINK_HERE', '_blank')">Watch Video</button>
+  }
 // -----------------------------
 // DOM
 const calendarGrid = document.getElementById('calendarGrid');
@@ -504,6 +507,7 @@ renderWeek(currentWeekStart);
 </script>
 </body>
 </html>
+
 
 
 
