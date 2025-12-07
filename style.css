@@ -1,0 +1,26 @@
+body {
+    font-family: Arial;
+    margin: 20px;
+    background: #f6f6f6;
+}
+
+h1 {
+    text-align: center;
+}
+
+.selector button {
+    margin: 6px;
+    padding: 10px 16px;
+    border: none;
+    background: #333;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.exercise {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
