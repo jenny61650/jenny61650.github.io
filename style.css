@@ -30,4 +30,15 @@ header {
 }
 
 .day h2 {
-  ma
+  margin-top: 0;
+}
+
+ul {
+  margin: 10px 0 0 20px;
+}
+
+.rest {
+  background: #eaeaea;
+  font-weight: bold;
+  text-align: center;
+}
