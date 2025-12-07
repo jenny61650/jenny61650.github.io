@@ -1,36 +1,505 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weekly Workout Planner</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Workout Calendar — Glute Focus</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background:#f6f6f6; }
-    header { background:#111; color:#fff; padding:20px; text-align:center; }
-    .container { max-width:900px; margin:20px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-    h2 { margin-top:40px; }
-    .day { padding:15px; margin:15px 0; border:1px solid #ddd; border-radius:10px; background:#fafafa; }
-    ul { margin:10px 0 0 20px; }
-    .rest { background:#eaeaea; font-weight:bold; text-align:center; }
+    :root{
+      --bg:#f4f6f8; --card:#fff; --accent:#2b6cb0; --muted:#6b7280;
+      --card-shadow: 0 6px 18px rgba(20,20,30,0.06);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg); color:#111; -webkit-font-smoothing:antialiased;
+    }
+
+    header{
+      background:linear-gradient(90deg,#0f1724,#12283b);
+      color:white; padding:18px 20px;
+      display:flex; align-items:center; gap:16px; justify-content:space-between;
+    }
+    header h1{font-size:18px; margin:0; font-weight:600;}
+    .controls{display:flex; gap:8px; align-items:center;}
+    .btn{
+      background:#fff0; border:1px solid rgba(255,255,255,0.15);
+      padding:8px 12px; color:white; border-radius:8px; cursor:pointer;
+      font-weight:600;
+    }
+    .btn.secondary{background:transparent; border:1px solid #e5e7eb; color:#111;}
+    main { max-width:1100px; margin:20px auto; padding:18px; }
+
+    .calendar-card{
+      background:var(--card); border-radius:12px; padding:18px; box-shadow:var(--card-shadow);
+    }
+
+    .week-nav{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom:12px;
+    }
+
+    .week-title{font-weight:700; color:var(--muted); font-size:15px;}
+
+    .calendar-grid{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:10px;
+    }
+
+    .day-tile{
+      background:linear-gradient(180deg,#fafafa,#ffffff);
+      border-radius:10px; padding:12px; min-height:110px;
+      border:1px solid #e6e9ee; cursor:pointer; display:flex; flex-direction:column;
+      justify-content:flex-start;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .day-tile:hover{ transform:translateY(-4px); box-shadow:0 8px 24px rgba(15,23,42,0.06); }
+    .day-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+    .day-name{ font-weight:700; color:#0f1724; font-size:13px; }
+    .date-bubble{ font-size:12px; color:var(--muted); padding:6px 8px; border-radius:8px; background:#f3f6f9; }
+    .rest { color:#9ca3af; font-weight:700; text-align:center; margin-top:8px; }
+
+    .exercise-list{ margin-top:6px; display:flex; flex-direction:column; gap:6px; flex:1; }
+    .exercise-pill{ font-size:13px; color:#111; background:#f7f9fc; padding:6px 8px; border-radius:8px; border:1px solid #eef2f7; }
+
+    /* side panel/modal */
+    .overlay{ position:fixed; inset:0; background:rgba(8,12,20,0.45); display:none; align-items:center; justify-content:center; z-index:60; padding:18px; }
+    .panel{ background:var(--card); width:100%; max-width:920px; border-radius:12px; box-shadow:var(--card-shadow); overflow:auto; max-height:90vh; }
+    .panel-body{ padding:18px; display:grid; grid-template-columns: 1fr 320px; gap:18px; }
+    .panel-left{ border-right:1px dashed #eef2f7; padding-right:12px; }
+    .panel-right{ padding-left:12px; }
+    .close-btn{ background:#eee; border:0; padding:8px 10px; border-radius:8px; cursor:pointer; }
+
+    .exercise-row{ display:grid; grid-template-columns: 1fr 90px 90px; gap:8px; align-items:center; margin-bottom:8px; }
+    .exercise-row label{ font-weight:600; font-size:14px; }
+    input[type="number"], input[type="text"], textarea{
+      width:100%; padding:8px; border:1px solid #e6e9ee; border-radius:8px; font-size:13px;
+    }
+    .save-btn{ background:var(--accent); color:white; padding:10px 14px; border-radius:10px; border:0; cursor:pointer; font-weight:700; margin-top:8px; width:100%; }
+    .small{ font-size:12px; color:var(--muted); margin-top:6px; }
+
+    /* responsive */
+    @media (max-width:900px){
+      .panel-body{ grid-template-columns: 1fr; }
+      .panel-right{ border-top:1px dashed #eef2f7; padding-top:12px; padding-left:0; }
+      .calendar-grid{ gap:8px; }
+    }
+
+    /* week selector input */
+    .jump-controls{ display:flex; gap:8px; align-items:center; }
+    .muted{ color:var(--muted); font-size:13px; }
   </style>
 </head>
 <body>
-  <header><h1>Weekly Workout Plan</h1></header>
-  <div class="container">
 
-    <div class="day">
-      <h2>Sunday — Glute-Dominant Leg Day 1</h2>
-      <ul>
-        <li>Barbell Hip Thrust — 4×6–8</li>
-        <li>Bulgarian Split Squat — 3×8–10 each</li>
-        <li>B-Stance RDL — 3×8–10 each</li>
-        <li>Leg Press (high + wide) — 3×10–12</li>
-        <li>Cable Kickback — 3×12–15</li>
-        <li>Glute Hyperextension — 3×12–15</li>
-        <li>Abductor Machine — 3×15–20</li>
-      </ul>
+  <header>
+    <h1>Workout Calendar — Glute Focus</h1>
+    <div class="controls">
+      <div class="week-nav-controls" style="display:flex;gap:8px;align-items:center">
+        <button id="prevWeek" class="btn">◀ Prev</button>
+        <button id="todayBtn" class="btn secondary">Today</button>
+        <button id="nextWeek" class="btn">Next ▶</button>
+      </div>
     </div>
+  </header>
 
-    <div class="day">
-      <h2>Monday — Full Upper (Back/Bi/Chest/Tri)</h2>
-      <ul
+  <main>
+    <div class="calendar-card">
+      <div class="week-nav">
+        <div class="week-title" id="weekTitle">Week</div>
+        <div class="jump-controls">
+          <div class="muted">Jump to week:</div>
+          <input id="weekInput" type="week" style="padding:6px;border-radius:8px;border:1px solid #e6e9ee"/>
+          <button id="jumpBtn" class="btn secondary">Go</button>
+        </div>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid" aria-live="polite">
+        <!-- day tiles -->
+      </div>
+    </div>
+  </main>
+
+  <!-- overlay panel -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+    <div class="panel" role="document">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #f1f5f9;">
+        <div>
+          <strong id="panelDayTitle">Day</strong>
+          <div id="panelDaySub" class="small">Date</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="deleteLog" class="close-btn" title="Delete saved log">Delete Log</button>
+          <button id="closePanel" class="close-btn">Close</button>
+        </div>
+      </div>
+
+      <div class="panel-body">
+        <div class="panel-left">
+          <h3 style="margin-top:12px">Exercises</h3>
+          <div id="exList" style="margin-top:12px">
+            <!-- exercise rows inserted here -->
+          </div>
+        </div>
+
+        <div class="panel-right">
+          <h3 style="margin-top:12px">Notes & Summary</h3>
+          <textarea id="dayNotes" rows="6" placeholder="Optional notes..."></textarea>
+          <div style="margin-top:8px">
+            <button id="saveLog" class="save-btn">Save Log</button>
+          </div>
+          <div class="small">Saved logs persist in your browser (localStorage).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/*
+  Calendar workout app
+  - Week navigation (Sunday start)
+  - Day click opens panel showing exercises for that weekday from the defined program
+  - Save per-date logs into localStorage
+*/
+
+// -----------------------------
+// Program definition (static)
+const PROGRAM = {
+  // Days map to the workouts you provided
+  "Sunday": [
+    {name:"Barbell Hip Thrust", sets:"4", reps:"6–8"},
+    {name:"Bulgarian Split Squat", sets:"3", reps:"8–10 each"},
+    {name:"B-Stance RDL", sets:"3", reps:"8–10 each"},
+    {name:"Leg Press (high + wide)", sets:"3", reps:"10–12"},
+    {name:"Cable Kickback", sets:"3", reps:"12–15"},
+    {name:"Glute Hyperextension", sets:"3", reps:"12–15"},
+    {name:"Abductor Machine", sets:"3", reps:"15–20"}
+  ],
+  "Monday": [
+    {name:"Lat Pulldown", sets:"3", reps:"8–12"},
+    {name:"Seated Row", sets:"3", reps:"8–12"},
+    {name:"Dumbbell Bench Press", sets:"3", reps:"8–12"},
+    {name:"Incline Machine Press", sets:"3", reps:"10–12"},
+    {name:"Hammer Curl", sets:"3", reps:"10–12"},
+    {name:"Cable Curl", sets:"3", reps:"12–15"},
+    {name:"Tricep Rope Pushdown", sets:"3", reps:"10–12"},
+    {name:"Overhead DB Extension", sets:"3", reps:"12–15"}
+  ],
+  "Tuesday": [], // REST
+  "Wednesday": [
+    {name:"Barbell Glute Bridge", sets:"4", reps:"8–10"},
+    {name:"Dumbbell RDL", sets:"3", reps:"8–12"},
+    {name:"Reverse Lunge", sets:"3", reps:"8–10 each"},
+    {name:"Smith Machine Squat (feet forward)", sets:"3", reps:"10–12"},
+    {name:"Cable Abduction", sets:"3", reps:"15–20"},
+    {name:"45° Hip Extension", sets:"3", reps:"12–15"},
+    {name:"Seated Leg Curl", sets:"3", reps:"12–15"}
+  ],
+  "Thursday": [], // REST
+  "Friday": [
+    {name:"Hip Thrust (light/high rep)", sets:"4", reps:"12–15"},
+    {name:"Sumo Deadlift or Squat", sets:"3", reps:"6–8"},
+    {name:"Step-Ups", sets:"3", reps:"10 each"},
+    {name:"Cable Pull-Through", sets:"3", reps:"12–15"},
+    {name:"Glute Med Kickouts", sets:"3", reps:"20"},
+    {name:"Leg Curl", sets:"3", reps:"12–15"},
+    {name:"Back Extension (glute focus)", sets:"3", reps:"15–20"}
+  ],
+  "Saturday": [
+    {name:"Pull-Ups or Assisted Pull-Up", sets:"3", reps:"6–10"},
+    {name:"Single-Arm Lat Pulldown", sets:"3", reps:"10–12"},
+    {name:"T-Bar Row", sets:"3", reps:"8–12"},
+    {name:"Straight Arm Pulldown", sets:"3", reps:"12–15"},
+    {name:"EZ Bar Curl", sets:"3", reps:"8–12"},
+    {name:"Preacher Curl", sets:"3", reps:"10–12"},
+    {name:"Reverse Curl", sets:"3", reps:"12–15"}
+  ]
+};
+
+// -----------------------------
+// Utils
+function formatDateKey(d){ // YYYY-MM-DD
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function parseDateKey(s){
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+function dayName(d){
+  return d.toLocaleDateString(undefined,{weekday:'long'});
+}
+function startOfWeek(date){ // Sunday-start
+  const d = new Date(date);
+  const day = d.getDay(); // 0 Sun .. 6 Sat
+  d.setDate(d.getDate() - day);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+
+// -----------------------------
+// DOM
+const calendarGrid = document.getElementById('calendarGrid');
+const weekTitle = document.getElementById('weekTitle');
+const prevWeekBtn = document.getElementById('prevWeek');
+const nextWeekBtn = document.getElementById('nextWeek');
+const todayBtn = document.getElementById('todayBtn');
+const weekInput = document.getElementById('weekInput');
+const jumpBtn = document.getElementById('jumpBtn');
+
+const overlay = document.getElementById('overlay');
+const panelDayTitle = document.getElementById('panelDayTitle');
+const panelDaySub = document.getElementById('panelDaySub');
+const exList = document.getElementById('exList');
+const saveLogBtn = document.getElementById('saveLog');
+const closePanelBtn = document.getElementById('closePanel');
+const dayNotesInput = document.getElementById('dayNotes');
+const deleteLogBtn = document.getElementById('deleteLog');
+
+let currentWeekStart = startOfWeek(new Date()); // Date of Sunday of current week
+let selectedDate = null; // Date object for clicked day
+
+// -----------------------------
+// Render calendar for currentWeekStart
+function renderWeek(startDate){
+  calendarGrid.innerHTML = '';
+  weekTitle.textContent = `Week of ${startDate.toLocaleDateString(undefined,{month:'short', day:'numeric', year:'numeric'})}`;
+  for(let i=0;i<7;i++){
+    const date = addDays(startDate,i);
+    const name = dayName(date);
+    const dayKey = formatDateKey(date);
+    const workouts = PROGRAM[name] || [];
+    const tile = document.createElement('button');
+    tile.className = 'day-tile';
+    tile.setAttribute('data-date', dayKey);
+    tile.setAttribute('aria-label', `${name} ${dayKey}`);
+    tile.innerHTML = `
+      <div class="day-header">
+        <div class="day-name">${name}</div>
+        <div class="date-bubble">${date.getMonth()+1}/${date.getDate()}</div>
+      </div>
+      <div class="exercise-list" aria-hidden="true">
+      </div>
+    `;
+
+    const list = tile.querySelector('.exercise-list');
+    if((!workouts) || workouts.length===0){
+      list.innerHTML = '<div class="rest">REST</div>';
+    } else {
+      // show up to 3 exercise pills as preview
+      workouts.slice(0,3).forEach(ex=>{
+        const p = document.createElement('div');
+        p.className = 'exercise-pill';
+        p.textContent = `${ex.name} · ${ex.sets}×${ex.reps}`;
+        list.appendChild(p);
+      });
+      if(workouts.length>3){
+        const more = document.createElement('div');
+        more.className = 'small muted';
+        more.style.marginTop='6px';
+        more.textContent = `+${workouts.length-3} more`;
+        list.appendChild(more);
+      }
+    }
+
+    // show saved indicator if saved
+    const savedKey = 'log-'+dayKey;
+    if(localStorage.getItem(savedKey)){
+      const dot = document.createElement('div');
+      dot.style.marginTop='8px';
+      dot.innerHTML = '<small style="color:#059669;font-weight:700">Saved</small>';
+      tile.appendChild(dot);
+    }
+
+    tile.addEventListener('click', ()=> openDayPanel(date));
+    calendarGrid.appendChild(tile);
+  }
+}
+
+// -----------------------------
+// Panel open
+function openDayPanel(date){
+  selectedDate = date;
+  const name = dayName(date);
+  const dateKey = formatDateKey(date);
+  panelDayTitle.textContent = `${name}`;
+  panelDaySub.textContent = dateKey;
+  // populate exercises
+  const workouts = PROGRAM[name] || [];
+  exList.innerHTML = '';
+  if(workouts.length===0){
+    exList.innerHTML = '<div class="rest" style="padding:12px;border-radius:8px;">Rest Day — no exercises</div>';
+  } else {
+    workouts.forEach((ex, idx)=>{
+      const row = document.createElement('div');
+      row.className = 'exercise-row';
+      // left: name + sets/reps
+      const left = document.createElement('div');
+      left.innerHTML = `<label>${ex.name}</label><div class="small">${ex.sets} × ${ex.reps}</div>`;
+      // middle: weight input
+      const weight = document.createElement('input');
+      weight.type = 'number';
+      weight.placeholder = 'weight';
+      weight.id = `w_${dateKey}_${idx}`;
+      // right: reps/input
+      const reps = document.createElement('input');
+      reps.type = 'text';
+      reps.placeholder = 'notes';
+      reps.id = `r_${dateKey}_${idx}`;
+
+      row.appendChild(left);
+      const midWrap = document.createElement('div');
+      midWrap.appendChild(weight);
+      row.appendChild(midWrap);
+      const rightWrap = document.createElement('div');
+      rightWrap.appendChild(reps);
+      row.appendChild(rightWrap);
+
+      exList.appendChild(row);
+    });
+  }
+
+  // load existing log if any
+  loadLogForDate(dateKey);
+
+  overlay.style.display = 'flex';
+  // focus the first input if present
+  setTimeout(()=> {
+    const first = exList.querySelector('input');
+    if(first) first.focus();
+  },180);
+}
+
+// -----------------------------
+// Save & load
+function saveLogForDate(dateKey){
+  const workouts = PROGRAM[dayName(parseDateKey(dateKey))] || [];
+  const payload = {
+    date: dateKey,
+    notes: dayNotesInput.value || '',
+    entries: []
+  };
+  workouts.forEach((ex, idx)=>{
+    const w = document.getElementById(`w_${dateKey}_${idx}`);
+    const r = document.getElementById(`r_${dateKey}_${idx}`);
+    payload.entries.push({
+      name: ex.name,
+      sets: ex.sets,
+      reps: ex.reps,
+      weight: w ? (w.value || '') : '',
+      note: r ? (r.value || '') : ''
+    });
+  });
+  localStorage.setItem('log-'+dateKey, JSON.stringify(payload));
+  // re-render week to show saved indicator
+  renderWeek(currentWeekStart);
+  alert('Log saved for ' + dateKey);
+}
+
+function loadLogForDate(dateKey){
+  const raw = localStorage.getItem('log-'+dateKey);
+  if(!raw){
+    dayNotesInput.value = '';
+    // clear inputs
+    const inputs = exList.querySelectorAll('input');
+    inputs.forEach(i=>i.value='');
+    return;
+  }
+  try{
+    const obj = JSON.parse(raw);
+    dayNotesInput.value = obj.notes || '';
+    obj.entries.forEach((ent, idx)=>{
+      const w = document.getElementById(`w_${dateKey}_${idx}`);
+      const r = document.getElementById(`r_${dateKey}_${idx}`);
+      if(w) w.value = ent.weight || '';
+      if(r) r.value = ent.note || '';
+    });
+  }catch(e){
+    console.warn('Failed to parse saved log', e);
+  }
+}
+
+function deleteLogForDate(dateKey){
+  if(confirm('Delete saved log for ' + dateKey + '?')){
+    localStorage.removeItem('log-'+dateKey);
+    renderWeek(currentWeekStart);
+    overlay.style.display = 'none';
+  }
+}
+
+// -----------------------------
+// Event listeners
+prevWeekBtn.addEventListener('click', ()=>{
+  currentWeekStart = addDays(currentWeekStart, -7);
+  renderWeek(currentWeekStart);
+});
+nextWeekBtn.addEventListener('click', ()=>{
+  currentWeekStart = addDays(currentWeekStart, +7);
+  renderWeek(currentWeekStart);
+});
+todayBtn.addEventListener('click', ()=>{
+  currentWeekStart = startOfWeek(new Date());
+  renderWeek(currentWeekStart);
+});
+jumpBtn.addEventListener('click', ()=>{
+  const v = weekInput.value;
+  if(!v){ alert('Select a week'); return; }
+  // week input format "YYYY-Www"
+  // convert to date: take Monday of that week then shift back to Sunday
+  const parts = v.split('-W');
+  if(parts.length!==2){ alert('Invalid week format'); return; }
+  const year = Number(parts[0]), weekNum = Number(parts[1]);
+  // ISO week -> get Monday:
+  const simple = new Date(year,0,1 + (weekNum - 1) * 7);
+  // find ISO week Monday
+  const dow = simple.getDay();
+  const isoMon = addDays(simple, (dow <= 4 ? 1 - dow : 8 - dow));
+  // shift to Sunday start
+  const sun = addDays(isoMon, -1);
+  currentWeekStart = startOfWeek(sun);
+  renderWeek(currentWeekStart);
+});
+
+// overlay button listeners
+closePanelBtn.addEventListener('click', ()=> overlay.style.display='none');
+saveLogBtn.addEventListener('click', ()=>{
+  if(!selectedDate) return;
+  saveLogForDate(formatDateKey(selectedDate));
+});
+deleteLogBtn.addEventListener('click', ()=>{
+  if(!selectedDate) return;
+  deleteLogForDate(formatDateKey(selectedDate));
+});
+
+// close on background click
+overlay.addEventListener('click', (e)=>{
+  if(e.target === overlay) overlay.style.display='none';
+});
+
+// initialize week input to current ISO week
+(function initWeekInput(){
+  const now = new Date();
+  // get iso week number
+  const tmp = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = tmp.getUTCDay() || 7;
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(),0,1));
+  const weekNum = Math.ceil((((tmp - yearStart) / 86400000) + 1)/7);
+  const weekStr = tmp.getUTCFullYear() + '-W' + String(weekNum).padStart(2,'0');
+  // HTML week input expects YYYY-Www but some browsers use YYYY-Www format. Setting value to correct format:
+  const month = String(now.getMonth()+1).padStart(2,'0');
+  const day = String(now.getDate()).padStart(2,'0');
+  // we craft YYYY-MM so clicking go will compute based on -W using our jump logic. For safety we also set to ISO week string if supported:
+  weekInput.value = `${now.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+})();
+
+// initial render
+renderWeek(currentWeekStart);
+
+</script>
+</body>
+</html>
