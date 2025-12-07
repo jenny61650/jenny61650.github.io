@@ -159,6 +159,8 @@
 <script>
 /*
   Calendar workout app
+
+  
   - Week navigation (Sunday start)
   - Day click opens panel showing exercises for that weekday from the defined program
   - Save per-date logs into localStorage
@@ -241,10 +243,7 @@ function startOfWeek(date){ // Sunday-start
   return d;
 }
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-  }
-  function showWorkout(day) {
-<button class="video-btn" onclick="window.open('youtube.com', '_blank')">Watch Video</button>
-  }
+
 // -----------------------------
 // DOM
 const calendarGrid = document.getElementById('calendarGrid');
@@ -507,6 +506,7 @@ renderWeek(currentWeekStart);
 </script>
 </body>
 </html>
+
 
 
 
