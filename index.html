@@ -224,7 +224,7 @@ function formatDateKey(d){ // YYYY-MM-DD
   const y = d.getFullYear();
   const m = String(d.getMonth()+1).padStart(2,'0');
   const day = String(d.getDate()).padStart(2,'0');
-  return ${y}-${m}-${day};
+  return `${y}-${m}-${day}`;
 }
 function parseDateKey(s){
   const [y,m,d] = s.split('-').map(Number);
@@ -268,7 +268,7 @@ let selectedDate = null; // Date object for clicked day
 // Render calendar for currentWeekStart
 function renderWeek(startDate){
   calendarGrid.innerHTML = '';
-  weekTitle.textContent = Week of ${startDate.toLocaleDateString(undefined,{month:'short', day:'numeric', year:'numeric'})};
+  weekTitle.textContent = `Week of ${startDate.toLocaleDateString(undefined,{month:'short', day:'numeric', year:'numeric'})}`;
   for(let i=0;i<7;i++){
     const date = addDays(startDate,i);
     const name = dayName(date);
@@ -277,15 +277,15 @@ function renderWeek(startDate){
     const tile = document.createElement('button');
     tile.className = 'day-tile';
     tile.setAttribute('data-date', dayKey);
-    tile.setAttribute('aria-label', ${name} ${dayKey});
-    tile.innerHTML = 
+    tile.setAttribute('aria-label', `${name} ${dayKey}`);
+    tile.innerHTML = `
       <div class="day-header">
         <div class="day-name">${name}</div>
         <div class="date-bubble">${date.getMonth()+1}/${date.getDate()}</div>
       </div>
       <div class="exercise-list" aria-hidden="true">
       </div>
-    ;
+    `;
 
     const list = tile.querySelector('.exercise-list');
     if((!workouts) || workouts.length===0){
@@ -295,14 +295,14 @@ function renderWeek(startDate){
       workouts.slice(0,3).forEach(ex=>{
         const p = document.createElement('div');
         p.className = 'exercise-pill';
-        p.textContent = ${ex.name} · ${ex.sets}×${ex.reps};
+        p.textContent = `${ex.name} · ${ex.sets}×${ex.reps}`;
         list.appendChild(p);
       });
       if(workouts.length>3){
         const more = document.createElement('div');
         more.className = 'small muted';
         more.style.marginTop='6px';
-        more.textContent = +${workouts.length-3} more;
+        more.textContent = `+${workouts.length-3} more`;
         list.appendChild(more);
       }
     }
@@ -327,7 +327,7 @@ function openDayPanel(date){
   selectedDate = date;
   const name = dayName(date);
   const dateKey = formatDateKey(date);
-  panelDayTitle.textContent = ${name};
+  panelDayTitle.textContent = `${name}`;
   panelDaySub.textContent = dateKey;
   // populate exercises
   const workouts = PROGRAM[name] || [];
@@ -340,17 +340,17 @@ function openDayPanel(date){
       row.className = 'exercise-row';
       // left: name + sets/reps
       const left = document.createElement('div');
-      left.innerHTML = <label>${ex.name}</label><div class="small">${ex.sets} × ${ex.reps}</div>;
+      left.innerHTML = `<label>${ex.name}</label><div class="small">${ex.sets} × ${ex.reps}</div>`;
       // middle: weight input
       const weight = document.createElement('input');
       weight.type = 'number';
       weight.placeholder = 'weight';
-      weight.id = w_${dateKey}_${idx};
+      weight.id = `w_${dateKey}_${idx}`;
       // right: reps/input
       const reps = document.createElement('input');
       reps.type = 'text';
       reps.placeholder = 'notes';
-      reps.id = r_${dateKey}_${idx};
+      reps.id = `r_${dateKey}_${idx}`;
 
       row.appendChild(left);
       const midWrap = document.createElement('div');
@@ -385,8 +385,8 @@ function saveLogForDate(dateKey){
     entries: []
   };
   workouts.forEach((ex, idx)=>{
-    const w = document.getElementById(w_${dateKey}_${idx});
-    const r = document.getElementById(r_${dateKey}_${idx});
+    const w = document.getElementById(`w_${dateKey}_${idx}`);
+    const r = document.getElementById(`r_${dateKey}_${idx}`);
     payload.entries.push({
       name: ex.name,
       sets: ex.sets,
@@ -414,8 +414,8 @@ function loadLogForDate(dateKey){
     const obj = JSON.parse(raw);
     dayNotesInput.value = obj.notes || '';
     obj.entries.forEach((ent, idx)=>{
-      const w = document.getElementById(w_${dateKey}_${idx});
-      const r = document.getElementById(r_${dateKey}_${idx});
+      const w = document.getElementById(`w_${dateKey}_${idx}`);
+      const r = document.getElementById(`r_${dateKey}_${idx}`);
       if(w) w.value = ent.weight || '';
       if(r) r.value = ent.note || '';
     });
@@ -495,7 +495,7 @@ overlay.addEventListener('click', (e)=>{
   const month = String(now.getMonth()+1).padStart(2,'0');
   const day = String(now.getDate()).padStart(2,'0');
   // we craft YYYY-MM so clicking go will compute based on -W using our jump logic. For safety we also set to ISO week string if supported:
-  weekInput.value = ${now.getFullYear()}-W${String(weekNum).padStart(2,'0')};
+  weekInput.value = `${now.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
 })();
 
 // initial render
